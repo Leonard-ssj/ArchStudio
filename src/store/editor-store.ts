@@ -20,6 +20,8 @@ interface EditorStore {
   togglePalette: () => void
   togglePropertiesPanel: () => void
   toggleValidationPanel: () => void
+  setPaletteOpen: (open: boolean) => void
+  setPropertiesPanelOpen: (open: boolean) => void
 
   // Per-diagram node/edge operations
   // These mutate the system via systemStore — the editor store just tracks UI state
@@ -56,4 +58,8 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
   toggleValidationPanel: () =>
     set((s) => ({ isValidationPanelOpen: !s.isValidationPanelOpen })),
+
+  setPaletteOpen: (open) => set({ isPaletteOpen: open }),
+
+  setPropertiesPanelOpen: (open) => set({ isPropertiesPanelOpen: open }),
 }))

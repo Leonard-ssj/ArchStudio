@@ -3,6 +3,8 @@ import React, { memo } from 'react'
 import { Handle, Position, NodeProps } from '@xyflow/react'
 import { ArchNodeData } from '@/types'
 import { getNodeDefinition } from '@/config/node-definitions'
+import { useUiStore } from '@/store/ui-store'
+import { t, tNodeType } from '@/lib/i18n'
 import {
   User, Globe, Server, Layers, Database, HardDrive, MessageSquare,
   Cloud, Container, Network, Shield, Lock, Key, Box, StickyNote,
@@ -24,6 +26,7 @@ function getIcon(iconName: string): React.ElementType {
 }
 
 function ArchNodeComponent({ data: rawData, selected }: NodeProps) {
+  const language = useUiStore((s) => s.language)
   const data = rawData as unknown as ArchNodeData
   const def = getNodeDefinition(data.semanticType)
   const Icon = getIcon(def?.icon ?? 'Box')
@@ -43,7 +46,7 @@ function ArchNodeComponent({ data: rawData, selected }: NodeProps) {
         <Handle type="source" position={Position.Bottom} className="!bg-yellow-400" />
         <Handle type="target" position={Position.Top} className="!bg-yellow-400" />
         <StickyNote size={12} className="inline mr-1" />
-        {data.label || 'Note'}
+        {data.label || tNodeType(language, 'annotation', 'Note')}
       </div>
     )
   }
@@ -74,7 +77,7 @@ function ArchNodeComponent({ data: rawData, selected }: NodeProps) {
       >
         <Icon size={13} style={{ color }} className="shrink-0" />
         <span className="text-xs font-semibold truncate" style={{ color }}>
-          {def?.displayName ?? data.semanticType}
+          {tNodeType(language, data.semanticType, def?.displayName ?? data.semanticType)}
         </span>
         {(hasErrors || hasWarnings) && (
           <AlertCircle
@@ -87,7 +90,7 @@ function ArchNodeComponent({ data: rawData, selected }: NodeProps) {
       {/* Label */}
       <div className="px-2.5 py-1.5">
         <p className="text-xs font-medium text-gray-800 truncate">
-          {data.label || <span className="text-red-400 italic">No label</span>}
+          {data.label || <span className="text-red-400 italic">{t(language, 'editor.label')}?</span>}
         </p>
         {data.properties?.environment && (
           <p className="text-[10px] text-gray-400 mt-0.5">{data.properties.environment}</p>

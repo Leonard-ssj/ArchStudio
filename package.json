@@ -3,19 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "description": "Semantic Architecture Editor - Visual modeling tool for enterprise architecture with validation, cross-layer consistency, and review workflows",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "vercel-build": "next build"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.4",
     "@xyflow/react": "^12.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.468.0",
     "next": "^14.2.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "tailwind-merge": "^3.5.0",
     "zod": "^3.24.1",
     "zustand": "^5.0.3"
   },

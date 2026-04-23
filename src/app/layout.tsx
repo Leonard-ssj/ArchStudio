@@ -14,11 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased">
-        <div className="min-h-screen flex flex-col">
-          <GlobalHeader />
-          <main className="flex-1 min-h-0">{children}</main>
-        </div>
+      <body className="min-h-screen bg-background text-foreground antialiased flex flex-col">
+        <GlobalHeader />
+        <main className="flex-1 min-h-0 flex flex-col">{children}</main>
       </body>
     </html>
   );

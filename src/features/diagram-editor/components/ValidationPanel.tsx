@@ -15,18 +15,21 @@ const SEVERITY_CONFIG: Record<Severity, { icon: React.ElementType; color: string
 }
 
 function ResultRow({ result, onNavigate }: { result: ValidationResult; onNavigate: (id: string) => void }) {
+  const language = useUiStore((s) => s.language)
   const cfg = SEVERITY_CONFIG[result.severity]
   const Icon = cfg.icon
+  const translatedMessage = language === 'es' ? t(language, `validation.${result.ruleId}`) : result.message
+  const messageToShow = translatedMessage.startsWith('validation.') ? result.message : translatedMessage
   return (
     <button
       onClick={() => result.nodeId && onNavigate(result.nodeId)}
-      className={`w-full text-left flex gap-2 px-3 py-2 hover:bg-gray-50 border-b border-gray-100 transition-colors ${result.nodeId ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`w-full text-left flex gap-2 px-3 py-2 hover:bg-accent/60 border-b border-border/80 transition-colors ${result.nodeId ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <Icon size={13} className={`${cfg.color} mt-0.5 shrink-0`} />
       <div className="min-w-0">
-        <p className="text-xs text-gray-700 truncate">{result.message}</p>
+        <p className="text-xs text-foreground truncate">{messageToShow}</p>
         {result.suggestion && (
-          <p className="text-[10px] text-gray-400 mt-0.5 truncate">{result.suggestion}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{result.suggestion}</p>
         )}
       </div>
     </button>
@@ -47,12 +50,13 @@ export function ValidationPanel() {
   const infos = validationResults.filter((r) => r.severity === 'info')
 
   const filtered = filter === 'all' ? validationResults : validationResults.filter((r) => r.severity === filter)
+  const panelHeight = isOpen ? 'min(36vh, 220px)' : 36
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col" style={{ height: isOpen ? 200 : 36 }}>
+    <div className="border-t border-border bg-card flex flex-col" style={{ height: panelHeight }}>
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-gray-100 dark:border-gray-800 shrink-0">
-        <button onClick={togglePanel} className="flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
+      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-border/80 shrink-0">
+        <button onClick={togglePanel} className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
           {isOpen ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
           {t(language, 'editor.validation')}
         </button>
@@ -78,7 +82,7 @@ export function ValidationPanel() {
             </button>
           )}
           {validationResults.length === 0 && (
-            <span className="text-[10px] text-gray-400">{t(language, 'editor.noIssues')}</span>
+            <span className="text-[10px] text-muted-foreground">{t(language, 'editor.noIssues')}</span>
           )}
         </div>
 
@@ -100,7 +104,7 @@ export function ValidationPanel() {
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 {validationResults.length === 0 ? t(language, 'editor.runHint') : t(language, 'editor.filterEmpty')}
               </p>
             </div>

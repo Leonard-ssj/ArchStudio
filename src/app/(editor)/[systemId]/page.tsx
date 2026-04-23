@@ -16,22 +16,34 @@ export default function EditorPage() {
   const isPaletteOpen = useEditorStore((s) => s.isPaletteOpen)
   const isPropertiesPanelOpen = useEditorStore((s) => s.isPropertiesPanelOpen)
   const isValidationPanelOpen = useEditorStore((s) => s.isValidationPanelOpen)
+  const setPaletteOpen = useEditorStore((s) => s.setPaletteOpen)
+  const setPropertiesPanelOpen = useEditorStore((s) => s.setPropertiesPanelOpen)
 
   useEffect(() => {
     if (systemId) setActiveSystem(decodeURIComponent(systemId))
   }, [systemId, setActiveSystem])
 
   return (
-    <>
+    <div className="h-full min-h-0 flex flex-col">
       <TopBar />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden relative">
+        {(isPaletteOpen || isPropertiesPanelOpen) && (
+          <button
+            aria-label="Close side panels"
+            className="md:hidden absolute inset-0 z-10 bg-black/25"
+            onClick={() => {
+              setPaletteOpen(false)
+              setPropertiesPanelOpen(false)
+            }}
+          />
+        )}
         {isPaletteOpen && <ComponentPalette />}
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <section className="flex-1 min-w-0 flex flex-col overflow-hidden">
           <DiagramCanvas />
           {isValidationPanelOpen && <ValidationPanel />}
-        </main>
+        </section>
         {isPropertiesPanelOpen && <PropertiesPanel />}
       </div>
-    </>
+    </div>
   )
 }

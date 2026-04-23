@@ -17,6 +17,7 @@ import { SemanticNodeType } from '@/types'
 
 export function DiagramCanvas() {
   const language = useUiStore((s) => s.language)
+  const theme = useUiStore((s) => s.theme)
   const { currentDiagram, activeLayer } = useEditor()
   const { addNode, addEdge: addArchEdge, updateNodePosition, deleteNode, deleteEdge } = useDiagramActions()
   const setSelectedNode = useEditorStore((s) => s.setSelectedNode)
@@ -89,14 +90,14 @@ export function DiagramCanvas() {
 
   if (!currentDiagram) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-400">{t(language, 'editor.noDiagram')}</p>
+      <div className="flex-1 min-h-0 flex items-center justify-center bg-muted/20">
+        <p className="text-sm text-muted-foreground">{t(language, 'editor.noDiagram')}</p>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 relative" ref={reactFlowWrapper}>
+    <div className="flex-1 min-h-0 relative" ref={reactFlowWrapper} data-diagram-canvas="true">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -115,12 +116,12 @@ export function DiagramCanvas() {
         deleteKeyCode="Delete"
         defaultEdgeOptions={{ type: 'smoothstep', animated: false }}
       >
-        <Background gap={16} color="#E5E7EB" />
+        <Background gap={16} color="hsl(var(--border))" />
         <Controls />
         <MiniMap
           nodeColor={() => '#94A3B8'}
-          maskColor="rgba(255,255,255,0.7)"
-          className="!border !border-gray-200 !rounded"
+          maskColor={theme === 'dark' ? 'rgba(15,23,42,0.45)' : 'rgba(255,255,255,0.7)'}
+          className="!hidden md:!block !border !border-border !rounded"
         />
       </ReactFlow>
     </div>

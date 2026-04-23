@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Languages, Moon, Sun } from 'lucide-react'
 import { useUiStore } from '@/store/ui-store'
 import { t } from '@/lib/i18n'
+import { Button } from '@/components/ui/Button'
 
 export function GlobalHeader() {
   const language = useUiStore((s) => s.language)
@@ -20,35 +21,37 @@ export function GlobalHeader() {
   }, [theme])
 
   return (
-    <header className="h-11 shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur px-4 flex items-center gap-3">
-      <Link href="/" className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+    <header className="h-auto min-h-12 shrink-0 border-b border-border bg-card/95 backdrop-blur px-3 sm:px-4 py-1.5 flex flex-wrap items-center gap-2">
+      <Link href="/" className="text-sm font-semibold text-foreground">
         {t(language, 'global.appName')}
       </Link>
-      <Link href="/" className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+      <Link href="/" className="text-xs text-muted-foreground hover:text-foreground">
         {t(language, 'global.home')}
       </Link>
 
-      <div className="ml-auto flex items-center gap-2">
-        <label className="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300">
+      <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+        <label className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <Languages size={12} />
           {t(language, 'global.language')}
         </label>
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value as 'en' | 'es')}
-          className="border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs rounded px-2 py-1 text-gray-700 dark:text-gray-200"
+          className="h-8 w-[90px] sm:w-auto border border-input bg-background text-foreground text-xs rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="en">{t(language, 'global.english')}</option>
           <option value="es">{t(language, 'global.spanish')}</option>
         </select>
 
-        <button
+        <Button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="inline-flex items-center gap-1.5 border border-gray-300 dark:border-gray-700 rounded px-2 py-1 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+          variant="secondary"
+          size="sm"
+          className="h-7"
         >
           {theme === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
           {theme === 'dark' ? t(language, 'global.light') : t(language, 'global.dark')}
-        </button>
+        </Button>
       </div>
     </header>
   )

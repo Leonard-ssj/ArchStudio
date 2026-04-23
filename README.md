@@ -21,6 +21,7 @@ npm run dev
 - **React Flow** (@xyflow/react) - visual canvas
 - **Zustand** - state management
 - **Tailwind CSS** - styling
+- **shadcn-style UI base** (Button, Dialog, Badge, Input, Card)
 - **Zod** - schema validation for import/export
 
 ## Project Structure
@@ -60,6 +61,54 @@ src/
 - **Cross-Layer Reference**: Links between nodes in different layers
 - **Validation**: Rule-based checks for errors, warnings, and completeness
 - **Workflow**: Draft → In Review → Approved/Rejected lifecycle
+
+## End-to-End Flow
+
+1. Open `/` and create or select a system.
+2. Enter the editor route `/:systemId`.
+3. Pick a layer (`application`, `infrastructure`, `data`) in the top bar.
+4. Drag semantic nodes from palette to canvas and connect them.
+5. Edit node metadata in the properties panel.
+6. Run validation and inspect errors/warnings in validation panel.
+7. Move diagram through workflow states (draft → in_review → approved/rejected).
+8. Export JSON (canonical source of truth) or import validated JSON.
+
+## QA Smoke Checklist
+
+- `npm run type-check`
+- `npm run lint`
+- `npm run build`
+- `npm run dev`
+- Home page loads with styles and can create a new system.
+- Editor page loads and allows drag/drop + edge creation.
+- Validation run marks issues in panel and on nodes.
+- Import/export JSON roundtrip works.
+
+## Vercel Deployment
+
+### Automatic Deploy (Recommended)
+
+1. Push repository to GitHub.
+2. In Vercel: **Add New Project** -> import the GitHub repo.
+3. Keep default preset: **Next.js**.
+4. Set Production Branch to `main`.
+5. Every push to `main` triggers automatic production deployment.
+6. Pull Requests trigger preview deployments automatically.
+
+### Build Settings
+
+- Install Command: `npm ci`
+- Build Command: `npm run build` (or `npm run vercel-build`)
+- Output Directory: `.next` (default for Next.js)
+- Node version: `22.x` (aligned with `package.json` engines and `.nvmrc`)
+
+## Troubleshooting
+
+- **Error `Cannot find module './vendor-chunks/...js'`**:
+  - Stop dev server.
+  - Remove `.next` folder.
+  - Start again with `npm run dev` or `npm run build`.
+  - This is usually a stale/corrupted Next.js cache issue.
 
 ## Development with Claude Code
 
