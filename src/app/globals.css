@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* React Flow required styles are imported via the package */
+
+html.dark {
+  color-scheme: dark;
+}
