@@ -21,7 +21,7 @@ export const SemanticNodeTypeSchema = z.enum([
   'gcp_storage', 'gcp_pubsub',
   'network',
   'secret_manager', 'iam', 'service_account',
-  'generic', 'annotation',
+  'generic', 'group', 'annotation',
 ]);
 
 export const EdgeRelationTypeSchema = z.enum([

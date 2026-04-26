@@ -113,6 +113,8 @@ export function DiagramCanvas() {
         onPaneClick={clearSelection}
         fitView
         fitViewOptions={{ padding: 0.2 }}
+        snapToGrid
+        snapGrid={[24, 24]}
         deleteKeyCode="Delete"
         defaultEdgeOptions={{ type: 'smoothstep', animated: false }}
       >

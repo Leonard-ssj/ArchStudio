@@ -39,6 +39,7 @@ export type SemanticNodeType =
   | 'service_account'
   // Generic
   | 'generic'
+  | 'group'
   | 'annotation';
 
 /**
@@ -123,6 +124,7 @@ export interface ArchNode {
   data: ArchNodeData;
   width?: number;
   height?: number;
+  zIndex?: number;
   selected?: boolean;
   dragging?: boolean;
 }
@@ -136,7 +138,7 @@ export interface NodeTypeDefinition {
   displayName: string;
   description: string;
   category: NodeCategory;
-  icon: string; // lucide icon name
+  icon: string; // lucide icon name or local SVG path
   color: string;
   allowedLayers: LayerType[];
   requiredProperties: (keyof NodeProperties)[];

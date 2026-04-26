@@ -8,11 +8,13 @@ import { t } from '@/lib/i18n'
 import { WorkflowBadge } from '@/features/workflow/WorkflowBadge'
 import { WorkflowActions } from '@/features/workflow/WorkflowActions'
 import { Button } from '@/components/ui/Button'
+import { Dialog } from '@/components/ui/Dialog'
 import { downloadDiagramPng, downloadDiagramSvg, downloadSystemJson } from '@/features/import-export/export-json'
 import { parseImportedJson, readFileAsText } from '@/features/import-export/import-json'
+import { validateImportedJson } from '@/features/import-export/schema-validator'
 import { LayerType, WorkflowAction, ReviewStatus } from '@/types'
 import { buildReviewEvent, getNextStatus } from '@/features/workflow/workflow-machine'
-import { Download, Upload, ArrowLeft, PanelLeft, PanelRight, PanelBottom } from 'lucide-react'
+import { Download, Upload, ArrowLeft, PanelLeft, PanelRight, PanelBottom, Code2 } from 'lucide-react'
 import Link from 'next/link'
 
 export function TopBar() {
@@ -29,6 +31,9 @@ export function TopBar() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = React.useState<string | null>(null)
   const [exportError, setExportError] = React.useState<string | null>(null)
+  const [isCodeDialogOpen, setIsCodeDialogOpen] = React.useState(false)
+  const [jsonCode, setJsonCode] = React.useState('')
+  const [jsonStatus, setJsonStatus] = React.useState<{ ok: boolean; message: string } | null>(null)
   const layers: { id: LayerType; label: string }[] = [
     { id: 'application', label: t(language, 'editor.application') },
     { id: 'infrastructure', label: t(language, 'editor.infrastructure') },
@@ -78,6 +83,46 @@ export function TopBar() {
       setImportError(result.errors[0])
     }
     e.target.value = ''
+  }
+
+  const openCodeEditor = () => {
+    if (!system) return
+    const payload = {
+      formatVersion: '1.0',
+      exportedAt: new Date().toISOString(),
+      system,
+    }
+    setJsonCode(JSON.stringify(payload, null, 2))
+    setJsonStatus(null)
+    setIsCodeDialogOpen(true)
+  }
+
+  const validateCodeJson = () => {
+    try {
+      const parsed = JSON.parse(jsonCode)
+      const validated = validateImportedJson(parsed)
+      if (!validated.success) {
+        setJsonStatus({ ok: false, message: validated.errors[0] ?? t(language, 'editor.jsonInvalid') })
+        return false
+      }
+      setJsonStatus({ ok: true, message: t(language, 'editor.jsonValid') })
+      return true
+    } catch {
+      setJsonStatus({ ok: false, message: t(language, 'editor.jsonInvalid') })
+      return false
+    }
+  }
+
+  const applyCodeJson = () => {
+    if (!validateCodeJson()) return
+    const result = parseImportedJson(jsonCode)
+    if (!result.success) {
+      setJsonStatus({ ok: false, message: result.errors[0] ?? t(language, 'editor.jsonInvalid') })
+      return
+    }
+    importSystem(result.system)
+    setImportError(null)
+    setIsCodeDialogOpen(false)
   }
 
   const handleTransition = (action: WorkflowAction, comment?: string) => {
@@ -177,6 +222,9 @@ export function TopBar() {
         <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" leftIcon={<Upload size={12} />} onClick={() => fileInputRef.current?.click()}>
           {t(language, 'editor.import')}
         </Button>
+        <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" leftIcon={<Code2 size={12} />} onClick={openCodeEditor}>
+          {t(language, 'editor.code')}
+        </Button>
         <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
         <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" onClick={handleExportSvg}>
           {t(language, 'editor.exportSvg')}
@@ -188,6 +236,38 @@ export function TopBar() {
           {t(language, 'editor.export')}
         </Button>
       </div>
+      <Dialog
+        open={isCodeDialogOpen}
+        onClose={() => setIsCodeDialogOpen(false)}
+        title={t(language, 'editor.jsonEditorTitle')}
+        maxWidth="lg"
+        actions={
+          <>
+            <Button size="sm" variant="ghost" onClick={() => setIsCodeDialogOpen(false)}>
+              {t(language, 'editor.close')}
+            </Button>
+            <Button size="sm" variant="secondary" onClick={validateCodeJson}>
+              {t(language, 'editor.validate')}
+            </Button>
+            <Button size="sm" variant="primary" onClick={applyCodeJson}>
+              {t(language, 'editor.apply')}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <textarea
+            value={jsonCode}
+            onChange={(e) => setJsonCode(e.target.value)}
+            className="w-full h-[420px] border border-input rounded bg-background text-foreground font-mono text-xs p-2 focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          {jsonStatus && (
+            <p className={`text-xs ${jsonStatus.ok ? 'text-emerald-600' : 'text-destructive'}`}>
+              {jsonStatus.message}
+            </p>
+          )}
+        </div>
+      </Dialog>
     </header>
   )
 }

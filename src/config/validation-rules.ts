@@ -81,6 +81,14 @@ export const VALIDATION_RULE_CATALOG = [
     layer: 'all' as const,
   },
   {
+    id: 'edge-endpoints-exist',
+    name: 'Edge Endpoints Exist',
+    description: 'Every edge must point to nodes that exist in the current diagram',
+    severity: 'error' as const,
+    category: 'edge_validity' as const,
+    layer: 'all' as const,
+  },
+  {
     id: 'isolated-nodes',
     name: 'Isolated Nodes',
     description: 'Nodes with no connections (edges) may indicate incomplete modeling',
@@ -94,6 +102,14 @@ export const VALIDATION_RULE_CATALOG = [
     description: 'Multiple nodes with the same label within a layer cause confusion',
     severity: 'warning' as const,
     category: 'consistency' as const,
+    layer: 'all' as const,
+  },
+  {
+    id: 'group-boundary-empty',
+    name: 'Group Boundary Has Content',
+    description: 'Group boundaries should contain at least one component',
+    severity: 'warning' as const,
+    category: 'completeness' as const,
     layer: 'all' as const,
   },
   {

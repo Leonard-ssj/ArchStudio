@@ -163,7 +163,14 @@ export function PropertiesPanel() {
                 <Field key={field} label={field}>
                   <TextInput
                     value={asString(props[field])}
-                    onChange={(v) => updateProp(field, v)}
+                    onChange={(v) => {
+                      if (field === 'width' || field === 'height') {
+                        const num = Number(v)
+                        updateProp(field, Number.isFinite(num) ? num : v)
+                        return
+                      }
+                      updateProp(field, v)
+                    }}
                     placeholder={field}
                   />
                 </Field>

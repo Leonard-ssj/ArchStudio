@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { SystemModel } from '@/types'
-import { EXAMPLE_SYSTEM } from '@/mock-data/example-system'
+import { MOCK_SYSTEMS } from '@/mock-data/sample-systems'
 
 interface SystemStore {
   systems: SystemModel[]
@@ -14,8 +14,8 @@ interface SystemStore {
 }
 
 export const useSystemStore = create<SystemStore>((set, get) => ({
-  systems: [EXAMPLE_SYSTEM],
-  activeSystemId: EXAMPLE_SYSTEM.id,
+  systems: MOCK_SYSTEMS,
+  activeSystemId: MOCK_SYSTEMS[0]?.id ?? null,
 
   getActiveSystem: () => {
     const { systems, activeSystemId } = get()

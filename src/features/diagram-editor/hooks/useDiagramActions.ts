@@ -9,6 +9,47 @@ function generateId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 }
 
+const NODE_WIDTH = 180
+const NODE_HEIGHT = 96
+const NODE_GAP = 28
+
+function rectsOverlap(
+  a: { x: number; y: number; w: number; h: number },
+  b: { x: number; y: number; w: number; h: number }
+) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y
+}
+
+function findFreePosition(
+  position: { x: number; y: number },
+  nodes: ArchNode[],
+  size: { w: number; h: number }
+) {
+  const safeX = Math.max(0, position.x)
+  const safeY = Math.max(0, position.y)
+  const maxAttempts = 200
+  for (let i = 0; i < maxAttempts; i++) {
+    const row = Math.floor(i / 10)
+    const col = i % 10
+    const candidate = {
+      x: safeX + col * NODE_GAP,
+      y: safeY + row * NODE_GAP,
+      w: size.w,
+      h: size.h,
+    }
+    const overlaps = nodes.some((n) =>
+      rectsOverlap(candidate, {
+        x: n.position.x,
+        y: n.position.y,
+        w: n.width ?? NODE_WIDTH,
+        h: n.height ?? NODE_HEIGHT,
+      })
+    )
+    if (!overlaps) return { x: candidate.x, y: candidate.y }
+  }
+  return { x: safeX + NODE_GAP, y: safeY + NODE_GAP }
+}
+
 export function useDiagramActions() {
   const system = useSystemStore((s) => s.getActiveSystem())
   const updateSystem = useSystemStore((s) => s.updateSystem)
@@ -41,10 +82,16 @@ export function useDiagramActions() {
       const def = getNodeDefinition(semanticType)
       if (!def) return
       const id = generateId(semanticType.replace('_', '-'))
+      const p = (def.defaultProperties ?? {}) as Record<string, unknown>
+      const nodeWidth = typeof p.width === 'number' ? p.width : NODE_WIDTH
+      const nodeHeight = typeof p.height === 'number' ? p.height : NODE_HEIGHT
       const newNode: ArchNode = {
         id,
         type: 'archNode',
         position,
+        width: nodeWidth,
+        height: nodeHeight,
+        zIndex: semanticType === 'group' ? -1 : 1,
         data: {
           semanticType,
           label: def.defaultProperties?.label ?? def.displayName,
@@ -55,7 +102,10 @@ export function useDiagramActions() {
           validationErrors: [],
         },
       }
-      patchDiagram((nodes, edges) => ({ nodes: [...nodes, newNode], edges }))
+      patchDiagram((nodes, edges) => {
+        const nextPosition = findFreePosition(position, nodes, { w: nodeWidth, h: nodeHeight })
+        return { nodes: [...nodes, { ...newNode, position: nextPosition }], edges }
+      })
       return id
     },
     [patchDiagram]
@@ -75,8 +125,12 @@ export function useDiagramActions() {
 
   const updateNodePosition = useCallback(
     (nodeId: string, position: { x: number; y: number }) => {
+      const safePosition = {
+        x: Math.max(0, position.x),
+        y: Math.max(0, position.y),
+      }
       patchDiagram((nodes, edges) => ({
-        nodes: nodes.map((n) => (n.id === nodeId ? { ...n, position } : n)),
+        nodes: nodes.map((n) => (n.id === nodeId ? { ...n, position: safePosition } : n)),
         edges,
       }))
     },
