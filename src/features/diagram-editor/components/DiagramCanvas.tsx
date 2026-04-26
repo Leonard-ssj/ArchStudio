@@ -1,9 +1,9 @@
 'use client'
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import {
   ReactFlow, Background, Controls, MiniMap,
-  OnConnect, OnNodesChange, applyNodeChanges, OnEdgesChange,
-  Connection, Node, Edge,
+  OnConnect, OnNodesChange, OnEdgesChange,
+  Connection, Node, Edge, Viewport,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useEditor } from '../hooks/useEditor'
@@ -14,6 +14,7 @@ import { t } from '@/lib/i18n'
 import { nodeTypes } from '../nodes/ArchNode'
 import { edgeTypes } from '../edges/ArchEdge'
 import { SemanticNodeType } from '@/types'
+import { AlignmentGuide, calculateSnappedPosition } from '../utils/snapping'
 
 export function DiagramCanvas() {
   const language = useUiStore((s) => s.language)
@@ -23,16 +24,21 @@ export function DiagramCanvas() {
   const setSelectedNode = useEditorStore((s) => s.setSelectedNode)
   const setSelectedEdge = useEditorStore((s) => s.setSelectedEdge)
   const clearSelection = useEditorStore((s) => s.clearSelection)
+  const snappingPreferences = useEditorStore((s) => s.snappingPreferences)
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
+  const [alignmentGuides, setAlignmentGuides] = useState<AlignmentGuide[]>([])
+  const [viewport, setViewport] = useState<Viewport>({ x: 0, y: 0, zoom: 1 })
+  const diagramNodes = currentDiagram?.nodes
+  const diagramEdges = currentDiagram?.edges
 
-  const nodes: Node[] = (currentDiagram?.nodes ?? []).map((n) => ({
+  const nodes: Node[] = (diagramNodes ?? []).map((n) => ({
     ...n,
     type: 'archNode',
     data: n.data as unknown as Record<string, unknown>,
   }))
 
-  const edges: Edge[] = (currentDiagram?.edges ?? []).map((e) => ({
+  const edges: Edge[] = (diagramEdges ?? []).map((e) => ({
     ...e,
     type: 'archEdge',
     data: e.data as unknown as Record<string, unknown>,
@@ -40,17 +46,34 @@ export function DiagramCanvas() {
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
-      applyNodeChanges(changes, nodes)
+      const positionChanges = changes.filter((change) => change.type === 'position' && change.position)
+      const shouldAlign = snappingPreferences.enabled && positionChanges.length === 1
+      let nextGuides: AlignmentGuide[] = []
+      let hasActiveDrag = false
+
       changes.forEach((change) => {
         if (change.type === 'position' && change.position) {
-          updateNodePosition(change.id, change.position)
+          hasActiveDrag = hasActiveDrag || Boolean(change.dragging)
+          const currentNode = diagramNodes?.find((node) => node.id === change.id)
+          const snapResult = shouldAlign && currentNode
+            ? calculateSnappedPosition(currentNode, change.position, diagramNodes ?? [], snappingPreferences)
+            : { position: change.position, guides: [] }
+
+          nextGuides = snapResult.guides
+          updateNodePosition(change.id, snapResult.position)
         }
         if (change.type === 'remove') {
           deleteNode(change.id)
         }
       })
+
+      if (shouldAlign && hasActiveDrag) {
+        setAlignmentGuides(nextGuides)
+      } else if (positionChanges.length > 0) {
+        setAlignmentGuides([])
+      }
     },
-    [nodes, updateNodePosition, deleteNode]
+    [diagramNodes, snappingPreferences, updateNodePosition, deleteNode]
   )
 
   const onEdgesChange: OnEdgesChange = useCallback(
@@ -88,6 +111,28 @@ export function DiagramCanvas() {
     [addNode, activeLayer]
   )
 
+  const renderGuide = (guide: AlignmentGuide) => {
+    if (guide.orientation === 'vertical') {
+      const x = guide.position * viewport.zoom + viewport.x
+      return (
+        <div
+          key={`vertical-${guide.position}`}
+          className="absolute top-0 bottom-0 w-px bg-sky-500/80 shadow-[0_0_0_1px_rgba(14,165,233,0.2)]"
+          style={{ left: x }}
+        />
+      )
+    }
+
+    const y = guide.position * viewport.zoom + viewport.y
+    return (
+      <div
+        key={`horizontal-${guide.position}`}
+        className="absolute left-0 right-0 h-px bg-sky-500/80 shadow-[0_0_0_1px_rgba(14,165,233,0.2)]"
+        style={{ top: y }}
+      />
+    )
+  }
+
   if (!currentDiagram) {
     return (
       <div className="flex-1 min-h-0 flex items-center justify-center bg-muted/20">
@@ -108,13 +153,17 @@ export function DiagramCanvas() {
         onConnect={onConnect}
         onDragOver={onDragOver}
         onDrop={onDrop}
+        onNodeDragStart={() => setAlignmentGuides([])}
+        onNodeDragStop={() => setAlignmentGuides([])}
+        onMove={(_, nextViewport) => setViewport(nextViewport)}
+        onInit={(instance) => setViewport(instance.getViewport())}
         onNodeClick={(_, node) => setSelectedNode(node.id)}
         onEdgeClick={(_, edge) => setSelectedEdge(edge.id)}
         onPaneClick={clearSelection}
         fitView
         fitViewOptions={{ padding: 0.2 }}
-        snapToGrid
-        snapGrid={[24, 24]}
+        snapToGrid={snappingPreferences.enabled}
+        snapGrid={[snappingPreferences.gridSize, snappingPreferences.gridSize]}
         deleteKeyCode="Delete"
         defaultEdgeOptions={{ type: 'smoothstep', animated: false }}
       >
@@ -126,6 +175,11 @@ export function DiagramCanvas() {
           className="!hidden md:!block !border !border-border !rounded"
         />
       </ReactFlow>
+      {alignmentGuides.length > 0 && (
+        <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+          {alignmentGuides.map(renderGuide)}
+        </div>
+      )}
     </div>
   )
 }

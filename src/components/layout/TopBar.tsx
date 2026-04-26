@@ -15,7 +15,7 @@ import { parseImportedJson, readFileAsText } from '@/features/import-export/impo
 import { validateImportedJson } from '@/features/import-export/schema-validator'
 import { LayerType, WorkflowAction, ReviewStatus } from '@/types'
 import { buildReviewEvent, getNextStatus } from '@/features/workflow/workflow-machine'
-import { Download, Upload, ArrowLeft, PanelLeft, PanelRight, PanelBottom, Code2 } from 'lucide-react'
+import { Download, Upload, ArrowLeft, PanelLeft, PanelRight, PanelBottom, Code2, Magnet } from 'lucide-react'
 import Link from 'next/link'
 
 export function TopBar() {
@@ -32,6 +32,10 @@ export function TopBar() {
   const togglePropertiesPanel = useEditorStore((s) => s.togglePropertiesPanel)
   const toggleValidationPanel = useEditorStore((s) => s.toggleValidationPanel)
   const toggleJsonPanel = useEditorStore((s) => s.toggleJsonPanel)
+  const snappingPreferences = useEditorStore((s) => s.snappingPreferences)
+  const setSnappingEnabled = useEditorStore((s) => s.setSnappingEnabled)
+  const setSnappingGridSize = useEditorStore((s) => s.setSnappingGridSize)
+  const setSnappingThreshold = useEditorStore((s) => s.setSnappingThreshold)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = React.useState<string | null>(null)
   const [exportError, setExportError] = React.useState<string | null>(null)
@@ -210,6 +214,49 @@ export function TopBar() {
         >
           <Code2 size={14} />
         </button>
+      </div>
+
+      <div className="flex items-center gap-1 rounded-md border border-border bg-background px-1.5 py-1">
+        <button
+          type="button"
+          onClick={() => setSnappingEnabled(!snappingPreferences.enabled)}
+          title="Toggle snapping"
+          aria-pressed={snappingPreferences.enabled}
+          className={[
+            'p-1 rounded border transition-colors',
+            snappingPreferences.enabled
+              ? 'border-primary text-primary bg-primary/5'
+              : 'border-border text-muted-foreground',
+          ].join(' ')}
+        >
+          <Magnet size={14} />
+        </button>
+        <label className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <span className="hidden sm:inline">Grid</span>
+          <input
+            type="number"
+            min={4}
+            max={128}
+            step={1}
+            value={snappingPreferences.gridSize}
+            disabled={!snappingPreferences.enabled}
+            onChange={(e) => setSnappingGridSize(e.currentTarget.valueAsNumber)}
+            className="h-6 w-12 rounded border border-input bg-background px-1 text-[11px] text-foreground disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </label>
+        <label className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <span className="hidden sm:inline">Threshold</span>
+          <input
+            type="number"
+            min={0}
+            max={64}
+            step={1}
+            value={snappingPreferences.threshold}
+            disabled={!snappingPreferences.enabled}
+            onChange={(e) => setSnappingThreshold(e.currentTarget.valueAsNumber)}
+            className="h-6 w-12 rounded border border-input bg-background px-1 text-[11px] text-foreground disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </label>
       </div>
 
       {/* Workflow */}
