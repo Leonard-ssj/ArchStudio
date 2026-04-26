@@ -34,7 +34,7 @@ export function DiagramCanvas() {
 
   const edges: Edge[] = (currentDiagram?.edges ?? []).map((e) => ({
     ...e,
-    type: e.type ?? 'smoothstep',
+    type: 'archEdge',
     data: e.data as unknown as Record<string, unknown>,
   }))
 

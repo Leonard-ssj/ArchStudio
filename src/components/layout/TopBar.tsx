@@ -1,6 +1,7 @@
 'use client'
 import React, { useRef } from 'react'
 import { useEditor } from '@/features/diagram-editor/hooks/useEditor'
+import { useDiagramActions } from '@/features/diagram-editor/hooks/useDiagramActions'
 import { useSystemStore } from '@/store/system-store'
 import { useEditorStore } from '@/store/editor-store'
 import { useUiStore } from '@/store/ui-store'
@@ -20,14 +21,17 @@ import Link from 'next/link'
 export function TopBar() {
   const language = useUiStore((s) => s.language)
   const { system, currentDiagram, activeLayer, setActiveLayer } = useEditor()
+  const { applyAutoLayoutGroups } = useDiagramActions()
   const updateSystem = useSystemStore((s) => s.updateSystem)
   const importSystem = useSystemStore((s) => s.importSystem)
   const isPaletteOpen = useEditorStore((s) => s.isPaletteOpen)
   const isPropertiesPanelOpen = useEditorStore((s) => s.isPropertiesPanelOpen)
   const isValidationPanelOpen = useEditorStore((s) => s.isValidationPanelOpen)
+  const isJsonPanelOpen = useEditorStore((s) => s.isJsonPanelOpen)
   const togglePalette = useEditorStore((s) => s.togglePalette)
   const togglePropertiesPanel = useEditorStore((s) => s.togglePropertiesPanel)
   const toggleValidationPanel = useEditorStore((s) => s.toggleValidationPanel)
+  const toggleJsonPanel = useEditorStore((s) => s.toggleJsonPanel)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = React.useState<string | null>(null)
   const [exportError, setExportError] = React.useState<string | null>(null)
@@ -199,6 +203,13 @@ export function TopBar() {
         >
           <PanelBottom size={14} />
         </button>
+        <button
+          onClick={toggleJsonPanel}
+          title="JSON Live"
+          className={`p-1 rounded border ${isJsonPanelOpen ? 'border-primary text-primary' : 'border-border text-muted-foreground'}`}
+        >
+          <Code2 size={14} />
+        </button>
       </div>
 
       {/* Workflow */}
@@ -224,6 +235,9 @@ export function TopBar() {
         </Button>
         <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" leftIcon={<Code2 size={12} />} onClick={openCodeEditor}>
           {t(language, 'editor.code')}
+        </Button>
+        <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" onClick={applyAutoLayoutGroups}>
+          Auto-layout Groups
         </Button>
         <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
         <Button size="sm" variant="ghost" className="px-2 sm:px-2.5" onClick={handleExportSvg}>

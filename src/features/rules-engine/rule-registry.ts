@@ -11,6 +11,9 @@ import { isolatedNodesRule } from './rules/isolated-nodes'
 import { duplicateLabelsRule } from './rules/duplicate-labels'
 import { missingOwnerCriticalityRule } from './rules/missing-owner-criticality'
 import { groupBoundaryEmptyRule } from './rules/group-boundary-empty'
+import { criticalServiceMissingOwnerRule } from './rules/critical-service-missing-owner'
+import { sensitiveDataOutsideSecureZoneRule } from './rules/sensitive-data-outside-secure-zone'
+import { publicFrontendNoSecurityControlRule } from './rules/public-frontend-no-security-control'
 
 export const ACTIVE_RULES: ValidationRule[] = [
   requiredLabelRule,
@@ -25,4 +28,7 @@ export const ACTIVE_RULES: ValidationRule[] = [
   duplicateLabelsRule,
   missingOwnerCriticalityRule,
   groupBoundaryEmptyRule,
+  criticalServiceMissingOwnerRule,
+  sensitiveDataOutsideSecureZoneRule,
+  publicFrontendNoSecurityControlRule,
 ]

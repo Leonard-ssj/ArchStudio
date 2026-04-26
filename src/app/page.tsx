@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input'
 import { Card, CardContent } from '@/components/ui/Card'
 import { useUiStore } from '@/store/ui-store'
 import { t } from '@/lib/i18n'
+import { createSystemFromTemplate, SYSTEM_TEMPLATES, SystemTemplateId } from '@/mock-data/system-templates'
 
 function SystemCard({ system }: { system: SystemModel }) {
   const language = useUiStore((s) => s.language)
@@ -53,17 +54,18 @@ function SystemCard({ system }: { system: SystemModel }) {
 function NewSystemDialog({ open, onClose, onCreate }: {
   open: boolean
   onClose: () => void
-  onCreate: (name: string, owner: string, description: string) => void
+  onCreate: (name: string, owner: string, description: string, templateId: SystemTemplateId) => void
 }) {
   const language = useUiStore((s) => s.language)
   const [name, setName] = useState('')
   const [owner, setOwner] = useState('')
   const [description, setDescription] = useState('')
+  const [templateId, setTemplateId] = useState<SystemTemplateId>('blank')
 
   const handleCreate = () => {
     if (!name.trim()) return
-    onCreate(name, owner, description)
-    setName(''); setOwner(''); setDescription('')
+    onCreate(name, owner, description, templateId)
+    setName(''); setOwner(''); setDescription(''); setTemplateId('blank')
     onClose()
   }
 
@@ -109,6 +111,18 @@ function NewSystemDialog({ open, onClose, onCreate }: {
             className="w-full border border-input bg-background text-foreground rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring h-20 resize-none"
           />
         </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Template</label>
+          <select
+            value={templateId}
+            onChange={(e) => setTemplateId(e.target.value as SystemTemplateId)}
+            className="w-full border border-input bg-background text-foreground rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            {SYSTEM_TEMPLATES.map((template) => (
+              <option key={template.id} value={template.id}>{template.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
     </Dialog>
   )
@@ -120,23 +134,8 @@ export default function HomePage() {
   const addSystem = useSystemStore((s) => s.addSystem)
   const [showNew, setShowNew] = useState(false)
 
-  const handleCreate = (name: string, owner: string, description: string) => {
-    const now = new Date().toISOString()
-    const id = `sys-${Date.now()}`
-    const newSystem: SystemModel = {
-      id,
-      name,
-      description,
-      owner,
-      createdAt: now,
-      updatedAt: now,
-      diagrams: [
-        { id: `diag-app-${id}`, systemId: id, layer: 'application', name: 'Application Layer', description: '', nodes: [], edges: [], metadata: { version: '1.0.0', lastEditedBy: owner, notes: '' }, reviewStatus: 'draft', reviewHistory: [], validationResults: [], createdAt: now, updatedAt: now },
-        { id: `diag-infra-${id}`, systemId: id, layer: 'infrastructure', name: 'Infrastructure Layer', description: '', nodes: [], edges: [], metadata: { version: '1.0.0', lastEditedBy: owner, notes: '' }, reviewStatus: 'draft', reviewHistory: [], validationResults: [], createdAt: now, updatedAt: now },
-        { id: `diag-data-${id}`, systemId: id, layer: 'data', name: 'Data Layer', description: '', nodes: [], edges: [], metadata: { version: '1.0.0', lastEditedBy: owner, notes: '' }, reviewStatus: 'draft', reviewHistory: [], validationResults: [], createdAt: now, updatedAt: now },
-      ],
-      metadata: { version: '1.0.0', createdBy: owner, organization: '', domain: '', tags: [] },
-    }
+  const handleCreate = (name: string, owner: string, description: string, templateId: SystemTemplateId) => {
+    const newSystem: SystemModel = createSystemFromTemplate(templateId, name, owner, description)
     addSystem(newSystem)
   }
 

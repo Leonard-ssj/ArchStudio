@@ -1,16 +1,28 @@
 'use client'
 import React from 'react'
-import { EdgeProps, BaseEdge, getSmoothStepPath, EdgeLabelRenderer } from '@xyflow/react'
+import {
+  EdgeProps,
+  BaseEdge,
+  getSmoothStepPath,
+  getBezierPath,
+  getStraightPath,
+  EdgeLabelRenderer,
+} from '@xyflow/react'
 
 export function ArchEdgeComponent({
   id, sourceX, sourceY, targetX, targetY,
   sourcePosition, targetPosition, data, selected, markerEnd,
 }: EdgeProps) {
   const edgeData = data as Record<string, unknown> | undefined
-  const [edgePath, labelX, labelY] = getSmoothStepPath({
-    sourceX, sourceY, sourcePosition,
-    targetX, targetY, targetPosition,
-  })
+  const lineType = String(edgeData?.lineType ?? 'smoothstep')
+  const [edgePath, labelX, labelY] =
+    lineType === 'bezier'
+      ? getBezierPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition })
+      : lineType === 'straight'
+        ? getStraightPath({ sourceX, sourceY, targetX, targetY })
+        : getSmoothStepPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition })
+  const pattern = String(edgeData?.linePattern ?? (edgeData?.isAsync ? 'dashed' : 'solid'))
+  const dashArray = pattern === 'dotted' ? '2,5' : pattern === 'dashed' ? '7,5' : undefined
 
   return (
     <>
@@ -19,9 +31,9 @@ export function ArchEdgeComponent({
         path={edgePath}
         markerEnd={markerEnd}
         style={{
-          stroke: selected ? '#3B82F6' : '#94A3B8',
-          strokeWidth: selected ? 2 : 1.5,
-          strokeDasharray: edgeData?.isAsync ? '5,3' : undefined,
+          stroke: selected ? '#3B82F6' : String((edgeData?.strokeColor as string) ?? '#94A3B8'),
+          strokeWidth: selected ? 2.2 : Number(edgeData?.strokeWidth ?? 1.6),
+          strokeDasharray: dashArray,
         }}
       />
       {edgeData?.label && (

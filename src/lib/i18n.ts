@@ -124,6 +124,9 @@ const TEXTS: TranslationMap = {
   'validation.isolated-nodes': { en: 'There are isolated nodes with no connections', es: 'Hay nodos aislados sin conexiones' },
   'validation.duplicate-labels': { en: 'There are duplicated labels in this layer', es: 'Hay etiquetas duplicadas en esta capa' },
   'validation.missing-owner-criticality': { en: 'A key node is missing owner or criticality', es: 'Un nodo clave no tiene owner o criticidad' },
+  'validation.critical-service-missing-owner': { en: 'A critical service is missing owner', es: 'Un servicio critico no tiene owner' },
+  'validation.sensitive-data-outside-secure-zone': { en: 'Sensitive data is outside secure zone', es: 'Datos sensibles fuera de zona segura' },
+  'validation.public-frontend-no-security-control': { en: 'Public frontend has no security control', es: 'Frontend publico sin control de seguridad' },
 }
 
 export function t(lang: Language, key: string): string {

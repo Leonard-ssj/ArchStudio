@@ -120,6 +120,30 @@ export const VALIDATION_RULE_CATALOG = [
     category: 'completeness' as const,
     layer: 'all' as const,
   },
+  {
+    id: 'critical-service-missing-owner',
+    name: 'Critical Service Missing Owner',
+    description: 'Critical services must define an owner',
+    severity: 'error' as const,
+    category: 'completeness' as const,
+    layer: 'application' as const,
+  },
+  {
+    id: 'sensitive-data-outside-secure-zone',
+    name: 'Sensitive Data Outside Secure Zone',
+    description: 'Sensitive data components should be inside secure boundaries',
+    severity: 'warning' as const,
+    category: 'consistency' as const,
+    layer: 'all' as const,
+  },
+  {
+    id: 'public-frontend-no-security-control',
+    name: 'Public Frontend Without Security Control',
+    description: 'Public production frontends should have security controls',
+    severity: 'warning' as const,
+    category: 'cross_layer' as const,
+    layer: 'application' as const,
+  },
 ] as const;
 
 /**

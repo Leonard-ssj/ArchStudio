@@ -26,6 +26,8 @@ export interface ArchEdgeData {
   port?: number;
   isAsync?: boolean;
   isBidirectional?: boolean;
+  lineType?: 'smoothstep' | 'bezier' | 'straight';
+  linePattern?: 'solid' | 'dashed' | 'dotted';
 }
 
 /**

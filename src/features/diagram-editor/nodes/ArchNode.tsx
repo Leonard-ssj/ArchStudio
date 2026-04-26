@@ -78,7 +78,7 @@ function ArchNodeComponent({ data: rawData, selected }: NodeProps) {
           'relative rounded-lg border-2 border-dashed bg-violet-50/25',
           selected ? 'ring-2 ring-violet-500 ring-offset-1' : 'border-violet-400/70',
         ].join(' ')}
-        style={{ width, height }}
+        style={{ width, height, transition: 'width 220ms ease, height 220ms ease, border-color 220ms ease' }}
       >
         <div className="absolute top-1 left-2 text-[11px] font-semibold text-violet-700 bg-violet-100/70 px-1.5 py-0.5 rounded">
           {data.label || tNodeType(language, 'group', 'Group')}

@@ -111,6 +111,8 @@ export const ArchEdgeDataSchema = z.object({
   port: z.number().optional(),
   isAsync: z.boolean().optional(),
   isBidirectional: z.boolean().optional(),
+  lineType: z.enum(['smoothstep', 'bezier', 'straight']).optional(),
+  linePattern: z.enum(['solid', 'dashed', 'dotted']).optional(),
 });
 
 export const ArchEdgeSchema = z.object({

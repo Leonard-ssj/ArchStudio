@@ -7,6 +7,7 @@ import { ComponentPalette } from '@/features/diagram-editor/components/Component
 import { DiagramCanvas } from '@/features/diagram-editor/components/DiagramCanvas'
 import { PropertiesPanel } from '@/features/diagram-editor/components/PropertiesPanel'
 import { ValidationPanel } from '@/features/diagram-editor/components/ValidationPanel'
+import { JsonLivePanel } from '@/features/diagram-editor/components/JsonLivePanel'
 import { useEditorStore } from '@/store/editor-store'
 
 export default function EditorPage() {
@@ -16,6 +17,7 @@ export default function EditorPage() {
   const isPaletteOpen = useEditorStore((s) => s.isPaletteOpen)
   const isPropertiesPanelOpen = useEditorStore((s) => s.isPropertiesPanelOpen)
   const isValidationPanelOpen = useEditorStore((s) => s.isValidationPanelOpen)
+  const isJsonPanelOpen = useEditorStore((s) => s.isJsonPanelOpen)
   const setPaletteOpen = useEditorStore((s) => s.setPaletteOpen)
   const setPropertiesPanelOpen = useEditorStore((s) => s.setPropertiesPanelOpen)
 
@@ -43,6 +45,7 @@ export default function EditorPage() {
           {isValidationPanelOpen && <ValidationPanel />}
         </section>
         {isPropertiesPanelOpen && <PropertiesPanel />}
+        {isJsonPanelOpen && <JsonLivePanel />}
       </div>
     </div>
   )

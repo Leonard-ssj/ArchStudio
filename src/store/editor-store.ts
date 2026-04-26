@@ -10,6 +10,7 @@ interface EditorStore {
   isPaletteOpen: boolean
   isPropertiesPanelOpen: boolean
   isValidationPanelOpen: boolean
+  isJsonPanelOpen: boolean
 
   setActiveLayer: (layer: LayerType) => void
   setSelectedNode: (id: string | null) => void
@@ -20,8 +21,10 @@ interface EditorStore {
   togglePalette: () => void
   togglePropertiesPanel: () => void
   toggleValidationPanel: () => void
+  toggleJsonPanel: () => void
   setPaletteOpen: (open: boolean) => void
   setPropertiesPanelOpen: (open: boolean) => void
+  setJsonPanelOpen: (open: boolean) => void
 
   // Per-diagram node/edge operations
   // These mutate the system via systemStore — the editor store just tracks UI state
@@ -37,6 +40,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
   isPaletteOpen: true,
   isPropertiesPanelOpen: true,
   isValidationPanelOpen: true,
+  isJsonPanelOpen: false,
 
   setActiveLayer: (layer) =>
     set({ activeLayer: layer, selectedNodeId: null, selectedEdgeId: null }),
@@ -59,7 +63,11 @@ export const useEditorStore = create<EditorStore>((set) => ({
   toggleValidationPanel: () =>
     set((s) => ({ isValidationPanelOpen: !s.isValidationPanelOpen })),
 
+  toggleJsonPanel: () => set((s) => ({ isJsonPanelOpen: !s.isJsonPanelOpen })),
+
   setPaletteOpen: (open) => set({ isPaletteOpen: open }),
 
   setPropertiesPanelOpen: (open) => set({ isPropertiesPanelOpen: open }),
+
+  setJsonPanelOpen: (open) => set({ isJsonPanelOpen: open }),
 }))
